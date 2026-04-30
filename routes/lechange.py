@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 import requests
 from flask import Blueprint, Response, jsonify, request
@@ -61,5 +62,6 @@ def snapshot_image():
 
     content_type = image_response.headers.get("Content-Type", "image/jpeg")
     response = Response(image_response.content, mimetype=content_type)
-    response.headers["Content-Disposition"] = 'inline; filename="snapshot.jpg"'
+    filename = datetime.now().strftime("snapshot_%Y%m%d_%H%M%S.jpg")
+    response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
