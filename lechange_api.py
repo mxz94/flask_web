@@ -132,7 +132,44 @@ class LechangeClient:
         except requests.exceptions.RequestException as e:
             print(f"Error fetching live stream info: {e}")
             return None
-            
+
+    def set_device_snap_enhanced(self, access_token, device_id, channel_id="0"):
+        """
+        设备抓图升级版
+        接口地址: https://openapi.lechange.cn/openapi/setDeviceSnapEnhanced
+        """
+        url = f"{self.base_url}/setDeviceSnapEnhanced"
+
+        timestamp = int(time.time())
+        nonce = str(uuid.uuid4())
+        request_id = str(uuid.uuid4())
+
+        sign = self._generate_sign(timestamp, nonce)
+
+        payload = {
+            "system": {
+                "ver": "1.0",
+                "appId": self.app_id,
+                "sign": sign,
+                "time": timestamp,
+                "nonce": nonce
+            },
+            "id": request_id,
+            "params": {
+                "token": access_token,
+                "deviceId": device_id,
+                "channelId": channel_id
+            }
+        }
+
+        try:
+            response = requests.post(url, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error taking enhanced snapshot: {e}")
+            return None
+
 if __name__ == "__main__":
     # 示例用法
     # 请替换为您在乐橙开放平台申请的 appId 和 appSecret
