@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传</title>
+    <!-- 引入字体和图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a5af9;
+            --primary-color-light: #f2f0ff;
+            --secondary-color: #4CAF50;
+            --background-color: #f4f7fc;
+            --text-color: #333;
+            --border-color: #dce1eb;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-header {
+            margin-bottom: 25px;
+        }
+
+        .upload-header i {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .upload-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-color-light);
+        }
+
+        .file-drop-area {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .file-drop-area.drag-over {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color-light);
+        }
+
+        .file-drop-area i {
+            font-size: 36px;
+            color: var(--primary-color);
+        }
+
+        .file-msg {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #777;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        #file-preview {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .file-preview-item {
+            display: flex;
+            align-items: center;
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .file-preview-item i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .upload-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .upload-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        #status-message {
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        #status-message.success {
+            color: var(--success-color);
+        }
+
+        #status-message.error {
+            color: var(--error-color);
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="upload-header">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h1>文件上传</h1>
+    </div>
+    <form id="uploadForm">
+        <div class="form-group">
+            <input type="password" name="pwd" id="pwd" placeholder="授权密码">
+        </div>
+        <div class="form-group">
+            <input type="text" name="title" id="title" placeholder="文件标题">
+        </div>
+
+        <div class="file-drop-area">
+            <i class="fas fa-file-import"></i>
+            <span class="file-msg">拖拽文件到这里，或点击选择</span>
+            <input type="file" name="files" id="files" class="file-input" multiple required>
+        </div>
+
+        <div id="file-preview"></div>
+
+        <button type="submit" class="upload-btn">上传</button>
+    </form>
+    <div id="status-message"></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('files');
+        const dropArea = document.querySelector('.file-drop-area');
+        const filePreview = document.getElementById('file-preview');
+        const statusMessage = document.getElementById('status-message');
+
+        // --- Drag and Drop Event Handlers ---
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('drag-over');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('drag-over');
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('drag-over');
+            // 将拖拽的文件赋值给文件输入框
+            fileInput.files = e.dataTransfer.files;
+            handleFiles(fileInput.files);
+        });
+
+        // --- Handle file selection from input click ---
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+
+        // --- Function to preview selected files ---
+        function handleFiles(files) {
+            filePreview.innerHTML = ''; // Clear previous preview
+            if (files.length === 0) {
+                return;
+            }
+            for (const file of files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-preview-item';
+                fileItem.innerHTML = `<i class="fas fa-file-alt"></i> ${file.name}`;
+                filePreview.appendChild(fileItem);
+            }
+        }
+
+        // --- Form submission handler ---
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            uploadFiles();
+        });
+
+        function uploadFiles() {
+            const pwd = document.getElementById('pwd').value;
+            const title = document.getElementById('title').value;
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                showStatus('文件不能为空！', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('pwd', pwd);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            showStatus('正在上传...', 'progress');
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`服务器错误: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const message = data.message + (data.results ? `: ${data.results}` : '');
+                    showStatus(message, 'success');
+                    uploadForm.reset(); // 清空表单
+                    filePreview.innerHTML = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showStatus(`上传失败: ${error.message}`, 'error');
+                });
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = type; // 'success' or 'error'
+        }
+    });
+</script>
+</body>
+</html>

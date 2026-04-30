@@ -1,0 +1,26 @@
+{
+  "stream_url": "https://cmgw-vpc.lechange.com:8890/LCO/9A024A3PCG3F942/0/1/20260109T060550/openhz687c393e554b4a699b6959853c25c357.m3u8?proto=https&source=open",
+  "device_id": "9A024A3PCG3F942",
+  "periods": {
+    "workday": [
+      {
+        "start": "08:00",
+        "end": "09:00"
+      },
+      {
+        "start": "18:00",
+        "end": "22:00"
+      }
+    ],
+    "holiday": [
+      {
+        "start": "10:00",
+        "end": "23:00"
+      }
+    ]
+  },
+  "trigger_duration_mins": 3,
+  "dingtalk_webhook": "https://oapi.dingtalk.com/robot/send?access_token=5575d8a5ffffdbc9ad5cd470e733911aece1d8c740a12031d1e96625d210e3ce",
+  "record_duration_mins": 60,
+  "output_dir": "/www/wwwroot/malanxi/index/lc/records"
+}
