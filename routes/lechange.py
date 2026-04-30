@@ -14,8 +14,8 @@ DEFAULT_EXIF = {
     "latitude": "34;35;44.11999999999955139",
     "longitude": "112;30;33.7299999999814304",
     "altitude": "148.512918994413411",
-    "make": "Apple",
-    "model": "iPhone 14 Plus",
+    "make": "Lechange",
+    "model": "9A024A3PCG3F942",
 }
 
 

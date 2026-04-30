@@ -72,8 +72,8 @@ def write_image_exif(
     longitude,
     altitude=None,
     taken_at=None,
-    make="Apple",
-    model="iPhone 14 Plus",
+    make="Lechange",
+    model="9A024A3PCG3F942",
 ):
     image = Image.open(file_storage.stream)
     if image.mode not in ("RGB", "L"):
@@ -121,8 +121,8 @@ def write_bytes_exif(
     longitude,
     altitude=None,
     taken_at=None,
-    make="Apple",
-    model="iPhone 14 Plus",
+    make="Lechange",
+    model="9A024A3PCG3F942",
 ):
     class _FileStorageLike:
         def __init__(self, data):

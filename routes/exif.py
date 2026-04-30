@@ -34,8 +34,8 @@ def add_exif():
             longitude=longitude,
             altitude=_form_value("altitude", "alt", "高度"),
             taken_at=_form_value("datetime", "time", "时间"),
-            make=_form_value("make", "照相机制造商", default="Apple"),
-            model=_form_value("model", "照相机型号", default="iPhone 14 Plus"),
+            make=_form_value("make", "照相机制造商", default="Lechange"),
+            model=_form_value("model", "照相机型号", default="9A024A3PCG3F942"),
         )
     except Exception as e:
         return jsonify({"code": 1, "msg": f"failed to write exif: {e}"}), 500
