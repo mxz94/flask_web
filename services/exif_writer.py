@@ -66,6 +66,10 @@ def _normalize_exif_time(value):
     return text
 
 
+def _ascii(value):
+    return str(value).encode("ascii", errors="ignore")
+
+
 def write_image_exif(
     file_storage,
     latitude,
@@ -81,19 +85,21 @@ def write_image_exif(
 
     exif_time = _normalize_exif_time(taken_at)
     zeroth_ifd = {
-        piexif.ImageIFD.Make: str(make),
-        piexif.ImageIFD.Model: str(model),
-        piexif.ImageIFD.Software: "flask_web exif tool",
+        piexif.ImageIFD.Make: _ascii(make),
+        piexif.ImageIFD.Model: _ascii(model),
+        piexif.ImageIFD.Software: b"flask_web exif tool",
+        piexif.ImageIFD.DateTime: _ascii(exif_time),
     }
     exif_ifd = {
-        piexif.ExifIFD.DateTimeOriginal: exif_time,
-        piexif.ExifIFD.DateTimeDigitized: exif_time,
+        piexif.ExifIFD.DateTimeOriginal: _ascii(exif_time),
+        piexif.ExifIFD.DateTimeDigitized: _ascii(exif_time),
     }
     gps_ifd = {
-        piexif.GPSIFD.GPSLatitudeRef: _gps_ref(latitude, "N", "S"),
+        piexif.GPSIFD.GPSLatitudeRef: _ascii(_gps_ref(latitude, "N", "S")),
         piexif.GPSIFD.GPSLatitude: _gps_coord(latitude),
-        piexif.GPSIFD.GPSLongitudeRef: _gps_ref(longitude, "E", "W"),
+        piexif.GPSIFD.GPSLongitudeRef: _ascii(_gps_ref(longitude, "E", "W")),
         piexif.GPSIFD.GPSLongitude: _gps_coord(longitude),
+        piexif.GPSIFD.GPSMapDatum: b"WGS-84",
     }
 
     if altitude not in (None, ""):

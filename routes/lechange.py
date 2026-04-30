@@ -72,23 +72,22 @@ def snapshot_image():
     content_type = image_response.headers.get("Content-Type", "image/jpeg")
     image_content = image_response.content
 
-    if content_type.lower().startswith("image/"):
-        try:
-            image_content = write_bytes_exif(
-                image_content,
-                latitude=request.values.get("latitude", DEFAULT_EXIF["latitude"]),
-                longitude=request.values.get("longitude", DEFAULT_EXIF["longitude"]),
-                altitude=request.values.get("altitude", DEFAULT_EXIF["altitude"]),
-                taken_at=request.values.get("datetime"),
-                make=request.values.get("make", DEFAULT_EXIF["make"]),
-                model=request.values.get("model", DEFAULT_EXIF["model"]),
-            ).getvalue()
-            content_type = "image/jpeg"
-        except Exception as e:
-            return jsonify({
-                "code": 1,
-                "msg": f"Failed to write snapshot exif: {e}",
-            }), 500
+    try:
+        image_content = write_bytes_exif(
+            image_content,
+            latitude=request.values.get("latitude", DEFAULT_EXIF["latitude"]),
+            longitude=request.values.get("longitude", DEFAULT_EXIF["longitude"]),
+            altitude=request.values.get("altitude", DEFAULT_EXIF["altitude"]),
+            taken_at=request.values.get("datetime"),
+            make=request.values.get("make", DEFAULT_EXIF["make"]),
+            model=request.values.get("model", DEFAULT_EXIF["model"]),
+        ).getvalue()
+        content_type = "image/jpeg"
+    except Exception as e:
+        return jsonify({
+            "code": 1,
+            "msg": f"Failed to write snapshot exif: {e}",
+        }), 500
 
     response = Response(image_content, mimetype=content_type)
     filename = datetime.now().strftime("snapshot_%Y%m%d_%H%M%S.jpg")
