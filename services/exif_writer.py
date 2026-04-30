@@ -113,3 +113,27 @@ def write_image_exif(
     image.save(output, format="JPEG", quality=95, exif=exif_bytes)
     output.seek(0)
     return output
+
+
+def write_bytes_exif(
+    image_bytes,
+    latitude,
+    longitude,
+    altitude=None,
+    taken_at=None,
+    make="Apple",
+    model="iPhone 14 Plus",
+):
+    class _FileStorageLike:
+        def __init__(self, data):
+            self.stream = BytesIO(data)
+
+    return write_image_exif(
+        _FileStorageLike(image_bytes),
+        latitude=latitude,
+        longitude=longitude,
+        altitude=altitude,
+        taken_at=taken_at,
+        make=make,
+        model=model,
+    )

@@ -5,9 +5,18 @@ import requests
 from flask import Blueprint, Response, jsonify, request
 
 from services.lechange_service import take_device_snapshot
+from services.exif_writer import write_bytes_exif
 
 
 lechange_bp = Blueprint("lechange", __name__)
+
+DEFAULT_EXIF = {
+    "latitude": "34;35;44.11999999999955139",
+    "longitude": "112;30;33.7299999999814304",
+    "altitude": "148.512918994413411",
+    "make": "Apple",
+    "model": "iPhone 14 Plus",
+}
 
 
 @lechange_bp.route("/lc/snapshot", methods=["GET", "POST"])
@@ -61,7 +70,27 @@ def snapshot_image():
         }), 502
 
     content_type = image_response.headers.get("Content-Type", "image/jpeg")
-    response = Response(image_response.content, mimetype=content_type)
+    image_content = image_response.content
+
+    if content_type.lower().startswith("image/"):
+        try:
+            image_content = write_bytes_exif(
+                image_content,
+                latitude=request.values.get("latitude", DEFAULT_EXIF["latitude"]),
+                longitude=request.values.get("longitude", DEFAULT_EXIF["longitude"]),
+                altitude=request.values.get("altitude", DEFAULT_EXIF["altitude"]),
+                taken_at=request.values.get("datetime"),
+                make=request.values.get("make", DEFAULT_EXIF["make"]),
+                model=request.values.get("model", DEFAULT_EXIF["model"]),
+            ).getvalue()
+            content_type = "image/jpeg"
+        except Exception as e:
+            return jsonify({
+                "code": 1,
+                "msg": f"Failed to write snapshot exif: {e}",
+            }), 500
+
+    response = Response(image_content, mimetype=content_type)
     filename = datetime.now().strftime("snapshot_%Y%m%d_%H%M%S.jpg")
     response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
