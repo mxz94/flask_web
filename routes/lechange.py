@@ -1,3 +1,5 @@
+import time
+
 import requests
 from flask import Blueprint, Response, jsonify, request
 
@@ -35,17 +37,24 @@ def snapshot_image():
         return jsonify(result), 500
 
     image_url = result["result"]["data"]["url"]
-    try:
-        image_response = requests.get(
-            image_url,
-            timeout=15,
-            proxies={"http": None, "https": None},
-        )
-        image_response.raise_for_status()
-    except requests.RequestException as e:
+    last_error = None
+    image_response = None
+    session = requests.Session()
+    session.trust_env = False
+
+    for attempt in range(6):
+        try:
+            image_response = session.get(image_url, timeout=15)
+            image_response.raise_for_status()
+            break
+        except requests.RequestException as e:
+            last_error = e
+            if attempt < 5:
+                time.sleep(0.8)
+    else:
         return jsonify({
             "code": 1,
-            "msg": f"Failed to download snapshot image: {e}",
+            "msg": f"Failed to download snapshot image: {last_error}",
             "url": image_url,
         }), 502
 
