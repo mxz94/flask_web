@@ -9,6 +9,8 @@ class LechangeClient:
         self.app_id = app_id
         self.app_secret = app_secret
         self.base_url = "https://openapi.lechange.cn/openapi"
+        self.session = requests.Session()
+        self.session.trust_env = False
 
     def _generate_sign(self, timestamp, nonce):
         """
@@ -45,11 +47,12 @@ class LechangeClient:
         }
         
         try:
-            response = requests.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
             print(f"Error fetching access token: {e}")
+            response = getattr(e, "response", None)
             if response is not None:
                 print(f"Response: {response.text}")
             return None
@@ -89,7 +92,7 @@ class LechangeClient:
         }
         
         try:
-            response = requests.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -126,7 +129,7 @@ class LechangeClient:
         }
         
         try:
-            response = requests.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -163,7 +166,7 @@ class LechangeClient:
         }
 
         try:
-            response = requests.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
