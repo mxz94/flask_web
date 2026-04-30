@@ -27,6 +27,7 @@ def snapshot():
 
 
 @lechange_bp.route("/lc/snapshot/image", methods=["GET", "POST"])
+@lechange_bp.route("/lc/snapshot.jpg", methods=["GET", "POST"])
 def snapshot_image():
     data = request.get_json(silent=True) or {}
     device_id = data.get("deviceId") or request.values.get("deviceId")
@@ -59,4 +60,6 @@ def snapshot_image():
         }), 502
 
     content_type = image_response.headers.get("Content-Type", "image/jpeg")
-    return Response(image_response.content, mimetype=content_type)
+    response = Response(image_response.content, mimetype=content_type)
+    response.headers["Content-Disposition"] = 'inline; filename="snapshot.jpg"'
+    return response
